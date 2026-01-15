@@ -1,0 +1,72 @@
+# =============================
+# Python
+# =============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =============================
+# Virtual Environments
+# =============================
+env/
+venv/
+.venv/
+*.swp
+
+# =============================
+# Jupyter / Colab
+# =============================
+.ipynb_checkpoints/
+/content/
+
+# =============================
+# Machine Learning / Models
+# =============================
+
+# TensorFlow checkpoints & logs
+checkpoint/
+events.out.tfevents.*
+
+# =============================
+# Large Datasets
+# =============================
+data/
+dataset/
+datasets/
+ocr-synthetic-dataset/
+*.zip
+
+# =============================
+# Uploaded Images
+# =============================
+static/uploads/
+static/*.jpg
+static/*.png
+static/*.jpeg
+
+# =============================
+# Logs
+# =============================
+*.log
+
+# =============================
+# OS / Editor Files
+# =============================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# =============================
+# Environment Variables
+# =============================
+.env
+*.env

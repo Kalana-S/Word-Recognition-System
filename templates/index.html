@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word OCR - AI Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Word Recognition</h1>
+            <p class="subtitle">Powered by CNN + BiLSTM + CTC</p>
+        </header>
+
+        <main>
+            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                <div class="drop-zone" id="drop-zone">
+                    <span class="drop-zone__prompt">Drop image here or click to upload</span>
+                    <input type="file" name="image" id="imageInput" class="drop-zone__input" required accept="image/*">
+                </div>
+                
+                <div id="preview-container" class="preview-container">
+                    <img id="image-preview" src="#" alt="Preview" style="display:none;">
+                </div>
+
+                <button type="submit" class="submit-btn">Recognize Word</button>
+            </form>
+
+            {% if result %}
+            <div class="result-card">
+                <h3>Prediction</h3>
+                <div class="prediction-text">{{ result }}</div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('image-preview');
+        
+        imageInput.onchange = evt => {
+            const [file] = imageInput.files;
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
