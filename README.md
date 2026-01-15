@@ -174,7 +174,7 @@ The model performs well even with:
 
 Full app workflow — UI → Input → Prediction<br>
 
-https://github.com/user-attachments/assets/c1e2dd79-023a-429f-85c4-765e1c35e3b2
+https://github.com/user-attachments/assets/6a9a129f-d722-42f9-b3dc-b6a8268287a8
 
 ---
 
