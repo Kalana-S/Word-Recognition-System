@@ -1,17 +1,32 @@
-# 📝 Word Recognition System (CRNN + CTC)
+# 📝 Word Recognition System (CRNN + CTC with Transfer Learning)
 
 This project is a **deep learning–based word recognition (OCR) web application** built using **TensorFlow**, **CNN + BiLSTM (CRNN)** architecture, and **CTC decoding**, deployed with a **Flask web interface**.
 
-The system recognizes **single-word images** and converts them into text with high accuracy. It is trained on the **Synth90k (100k) synthetic word dataset**, making it robust to variations in font, casing, and word length.
+The system recognizes **single-word images** and converts them into text with significantly improved accuracy and robustness, leveraging **transfer learning**, **data augmentation**, and **deeper sequence modeling**.
+It is trained on the **Synth90k (100k) synthetic word dataset**.
+
+---
+
+## ✅ What’s New (v0.0.2)
+
+- ✅ **Pretrained VGG16 backbone** (ImageNet weights)
+- ✅ Transfer learning–based CRNN architecture
+- ✅ Improved generalization with data augmentation
+- ✅ Stable **fixed-size RGB input** pipeline
+- ✅ Cleaner separation between **training (CTC)** and **inference**
+- ✅ Higher accuracy on complex fonts and mixed casing
 
 ---
 
 ## 🚀 Features
 
 - Image-based **single-word recognition**
-- **CNN + Bidirectional LSTM (CRNN)** architecture
+- **Pretrained VGG16** + **BiLSTM (CRNN)** architecture
 - **CTC (Connectionist Temporal Classification)** decoding
-- Variable-width image support (no fixed padding)
+- Fixed-size input: `32 × 256 × 3` (RGB)
+- Advanced data augmentation:
+  - Random brightness & contrast
+  - Small-angle rotation (KerasCV)
 - Trained on **Synth90k (100k word images)** dataset
 - TensorFlow `.keras` production model
 - Lightweight **Flask web application**
@@ -25,11 +40,15 @@ The system recognizes **single-word images** and converts them into text with hi
 ### Pipeline Overview
 
 ```
-Input Image (H=32, variable width)
+Input Image (32 × 256 × 3)
         ↓
-Convolutional Feature Extractor (CNN)
+Pretrained VGG16 (ImageNet)
         ↓
-Sequence Conversion (Width → Time steps)
+Intermediate Feature Map (block3_pool)
+        ↓
+Sequence Reshaping (Width → Time steps)
+        ↓
+Dense Projection
         ↓
 Bidirectional LSTM × 2
         ↓
@@ -43,7 +62,8 @@ Predicted Word
 ### Key Details
 
 - Image Height: `32 px`
-- Width: Variable (kept proportional)
+- Image Width: `256 px`
+- Channels: `3 (RGB)`
 - Character Set:
 
     ```
@@ -52,6 +72,7 @@ Predicted Word
 
 - Loss Function: `CTC Loss`
 - Decoder: Greedy CTC decoding
+- Backbone: **VGG16 (ImageNet pretrained)**
 
 ---
 
@@ -76,8 +97,10 @@ The dataset is downloaded automatically using the **Kaggle API**, making it suit
 
 - **Python**
 - **TensorFlow / Keras**
-- **CNN + BiLSTM (CRNN)**
+- **VGG16 (Transfer Learning)**
+- **BiLSTM (CRNN)**
 - **CTC Decoding**
+- **KerasCV** – Data augmentation
 - **Flask** – Web server
 - **HTML / CSS** – Frontend UI
 - **NumPy**
@@ -92,7 +115,7 @@ The dataset is downloaded automatically using the **Kaggle API**, making it suit
 ├── main.py                     # Flask application
 ├── utils.py                    # Image preprocessing & decoding
 ├── model/
-│   └── synth90k_crnn.keras     # Trained TensorFlow model
+│   └── synth90k_crnn.keras     # Trained VGG16-CRNN model
 ├── notebook/
 │   └── training_pipeline.ipynb # Model training notebook
 ├── templates/
@@ -138,8 +161,8 @@ The dataset is downloaded automatically using the **Kaggle API**, making it suit
 ## 🖼️ How It Works (Inference)
 
 1. Upload a **word image**
-2. Image is resized proportionally to height = 32
-3. CNN extracts visual features
+2. Image is resized to `32 × 256` and normalized
+3. VGG16 extracts high-level visual features
 4. BiLSTM models character sequences
 5. CTC decoder converts predictions to text
 6. Recognized word is displayed on the UI
@@ -158,7 +181,8 @@ The dataset is downloaded automatically using the **Kaggle API**, making it suit
 The model performs well even with:
 - Mixed casing
 - Long words
-- Different fonts
+- Complex fonts
+- Noisy synthetic samples
 
 ---
 
@@ -170,11 +194,20 @@ The model performs well even with:
 
 ---
 
+## 🧭 Versioning
+
+| Version | Description                                        |
+| ------- | -------------------------------------------------- |
+| v0.0.1  | Baseline CRNN + CTC OCR system                     |
+| v0.0.2  | Transfer learning, augmentation, improved accuracy |
+
+---
+
 ## 🎥 App Demo (Screen Recording)
 
 Full app workflow — UI → Input → Prediction<br>
 
-https://github.com/user-attachments/assets/c1e2dd79-023a-429f-85c4-765e1c35e3b2
+
 
 ---
 
