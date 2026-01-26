@@ -28,10 +28,36 @@
                 <button type="submit" class="submit-btn">Recognize Word</button>
             </form>
 
+            {% if image_path %}
+                <div class="result-card" style="border-left-color: var(--text-muted);">
+                    <h3>Source Image</h3>
+                    <img src="{{ image_path }}" style="max-width:100%; border-radius:8px;">
+                </div>
+            {% endif %}
+
             {% if result %}
             <div class="result-card">
                 <h3>Prediction</h3>
-                <div class="prediction-text">{{ result }}</div>
+                <div class="prediction-text">
+                    {{ result }}
+                </div>
+
+                {% set conf_val = confidence|float %}
+
+                {% if conf_val >= 0.9 %}
+                    {% set conf_status = "conf-high" %}
+                {% elif conf_val >= 0.75 %}
+                    {% set conf_status = "conf-med" %}
+                {% else %}
+                    {% set conf_status = "conf-low" %}
+                {% endif %}
+
+                <p>
+                    <strong>Confidence:</strong>
+                    <span class="{{ conf_status }}">
+                        {{ "%.1f"|format(conf_val * 100) }}%
+                    </span>
+                </p>
             </div>
             {% endif %}
         </main>
