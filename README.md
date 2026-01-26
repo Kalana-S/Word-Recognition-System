@@ -216,7 +216,7 @@ This approach:
 
 Full app workflow — UI → Input → Prediction<br>
 
-
+https://github.com/user-attachments/assets/42aa983f-8604-4a94-8d4e-e7af5c239b1c
 
 ---
 
