@@ -17,7 +17,7 @@ num_to_char = tf.keras.layers.StringLookup(
 IMG_HEIGHT = 32
 IMG_WIDTH_NEW = 256
 
-def preprocess_old(path):
+def preprocess_baseline(path):
     img = tf.io.read_file(path)
     img = tf.image.decode_image(img, channels=1, expand_animations=False)
 
@@ -27,62 +27,52 @@ def preprocess_old(path):
 
     img = tf.image.resize(img, (IMG_HEIGHT, new_w))
     img = tf.cast(img, tf.float32) / 255.0
+
     return tf.expand_dims(img, axis=0)
 
-
-def preprocess_new(path):
+def preprocess_transfer(path):
     img = tf.io.read_file(path)
     img = tf.image.decode_image(img, channels=3, expand_animations=False)
     img = tf.image.resize(img, (IMG_HEIGHT, IMG_WIDTH_NEW))
     img = tf.cast(img, tf.float32) / 255.0
+
     return tf.expand_dims(img, axis=0)
 
-def ctc_decode_with_confidence(pred):
-    """
-    pred: (1, T, C)
-    """
-    time_steps = pred.shape[1]
-    input_len = tf.fill([1], time_steps)
+def decode_with_confidence(pred):
+    batch_size = tf.shape(pred)[0]
+    time_steps = tf.shape(pred)[1]
 
-    decoded, _ = tf.keras.backend.ctc_decode(
+    input_len = tf.fill([batch_size], time_steps)
+
+    decoded, log_probs = tf.keras.backend.ctc_decode(
         pred, input_length=input_len, greedy=True
     )
 
     seq = decoded[0][0]
+    log_prob = log_probs[0][0]
+    confidence = float(tf.exp(-log_prob).numpy())
     seq = tf.boolean_mask(seq, seq != -1)
+    text = tf.strings.reduce_join(num_to_char(seq)).numpy().decode("utf-8")
 
-    text = tf.strings.reduce_join(num_to_char(seq)).numpy().decode()
+    return text, round(confidence, 3)
 
-    probs = tf.reduce_max(pred, axis=-1)  
-    confidence = tf.reduce_mean(probs).numpy()
+def confidence_based_predict(image_path, baseline_model, transfer_model):
+    img_base = preprocess_baseline(image_path)
+    pred_base = baseline_model(img_base, training=False)
+    text_base, conf_base = decode_with_confidence(pred_base)
+    img_tl = preprocess_transfer(image_path)
+    pred_tl = transfer_model(img_tl, training=False)
+    text_tl, conf_tl = decode_with_confidence(pred_tl)
 
-    return text, confidence
-
-CONF_THRESHOLD = 0.85
-
-def hybrid_predict(image_path, old_model, new_model):
-    """
-    1. Try old model first
-    2. If confidence is low, fallback to new model
-    """
-
-    img_old = preprocess_old(image_path)
-    pred_old = old_model(img_old, training=False)
-    text_old, conf_old = ctc_decode_with_confidence(pred_old)
-
-    if conf_old >= CONF_THRESHOLD:
+    if conf_tl > conf_base:
         return {
-            "text": text_old,
-            "model": "old",
-            "confidence": float(conf_old)
+            "text": text_tl,
+            "confidence": conf_tl,
+            "model": "transfer_learning"
         }
-
-    img_new = preprocess_new(image_path)
-    pred_new = new_model(img_new, training=False)
-    text_new, conf_new = ctc_decode_with_confidence(pred_new)
-
-    return {
-        "text": text_new,
-        "model": "new",
-        "confidence": float(conf_new)
-    }
+    else:
+        return {
+            "text": text_base,
+            "confidence": conf_base,
+            "model": "baseline"
+        }

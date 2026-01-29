@@ -44,9 +44,9 @@
 
                 {% set conf_val = confidence|float %}
 
-                {% if conf_val >= 0.9 %}
+                {% if conf_val >= 0.8 %}
                     {% set conf_status = "conf-high" %}
-                {% elif conf_val >= 0.75 %}
+                {% elif conf_val >= 0.65 %}
                     {% set conf_status = "conf-med" %}
                 {% else %}
                     {% set conf_status = "conf-low" %}
